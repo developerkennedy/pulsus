@@ -1,17 +1,14 @@
+import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
 
-// Validate environment variable
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL environment variable is not set');
-}
+// Criar conexão com o banco
+const dbClient = postgres(process.env.DATABASE_URL || '', {
+  ssl: process.env.NODE_ENV === 'production',
+});
 
-// Create postgres connection
-const client = postgres(databaseUrl);
+// Criar instância Drizzle com schema
+const db = drizzle(dbClient, { schema });
 
-// Create drizzle instance with schema
-export const db = drizzle(client, { schema });
-
-export type Database = typeof db;
+export { db, dbClient };

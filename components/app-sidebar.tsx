@@ -72,7 +72,7 @@ export function AppSidebar() {
             <Stethoscope className="h-4 w-4 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-foreground">dr.agenda</span>
+            <span className="text-lg font-bold text-foreground">Dr.agenda</span>
             <span className="text-xs text-muted-foreground">Clínica Care</span>
           </div>
         </div>

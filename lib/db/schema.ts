@@ -27,6 +27,16 @@ export const userRoleEnum = pgEnum('user_role', [
   'doctor',
 ]);
 
+export const availabilityDayOfWeekEnum = pgEnum('availability_day_of_week', [
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+]);
+
 /**
  * Tables
  */
@@ -69,20 +79,28 @@ export const specialities = pgTable('specialities', {
  */
 export const doctors = pgTable('doctors', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
   specialityId: integer('speciality_id')
     .notNull()
     .references(() => specialities.id),
   license: varchar('license', { length: 50 }).notNull().unique(),
   phone: varchar('phone', { length: 20 }),
   bio: text('bio'),
-  availableDaysOfWeek: varchar('available_days_of_week', { length: 255 }), // e.g., "1,2,3,4,5" (Monday to Friday)
-  startTime: varchar('start_time', { length: 5 }), // HH:mm format
-  endTime: varchar('end_time', { length: 5 }), // HH:mm format
   consultationFee: integer('consultation_fee'), // in cents (e.g., 25000 = R$ 250.00)
   isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const doctorAvailabilities = pgTable('doctor_availabilities', {
+  id: serial('id').primaryKey(),
+  doctorId: integer('doctor_id')
+    .notNull()
+    .references(() => doctors.id, { onDelete: 'cascade' }),
+  dayOfWeek: availabilityDayOfWeekEnum('day_of_week').notNull(),
+  startTime: varchar('start_time', { length: 5 }).notNull(),
+  endTime: varchar('end_time', { length: 5 }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -133,7 +151,6 @@ export const appointments = pgTable('appointments', {
  */
 
 export const usersRelations = relations(users, ({ many }) => ({
-  doctors: many(doctors),
   patients: many(patients),
   appointments: many(appointments),
 }));
@@ -143,16 +160,23 @@ export const specialitiesRelations = relations(specialities, ({ many }) => ({
 }));
 
 export const doctorsRelations = relations(doctors, ({ one, many }) => ({
-  user: one(users, {
-    fields: [doctors.userId],
-    references: [users.id],
-  }),
   speciality: one(specialities, {
     fields: [doctors.specialityId],
     references: [specialities.id],
   }),
   appointments: many(appointments),
+  availabilities: many(doctorAvailabilities),
 }));
+
+export const doctorAvailabilitiesRelations = relations(
+  doctorAvailabilities,
+  ({ one }) => ({
+    doctor: one(doctors, {
+      fields: [doctorAvailabilities.doctorId],
+      references: [doctors.id],
+    }),
+  }),
+);
 
 export const patientsRelations = relations(patients, ({ one, many }) => ({
   user: one(users, {
@@ -177,20 +201,3 @@ export const appointmentsRelations = relations(appointments, ({ one }) => ({
   }),
 }));
 
-/**
- * Types for TypeScript
- */
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-
-export type Speciality = typeof specialities.$inferSelect;
-export type NewSpeciality = typeof specialities.$inferInsert;
-
-export type Doctor = typeof doctors.$inferSelect;
-export type NewDoctor = typeof doctors.$inferInsert;
-
-export type Patient = typeof patients.$inferSelect;
-export type NewPatient = typeof patients.$inferInsert;
-
-export type Appointment = typeof appointments.$inferSelect;
-export type NewAppointment = typeof appointments.$inferInsert;

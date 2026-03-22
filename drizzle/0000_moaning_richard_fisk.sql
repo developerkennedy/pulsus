@@ -1,4 +1,5 @@
 CREATE TYPE "public"."appointment_status" AS ENUM('scheduled', 'completed', 'cancelled', 'no-show');--> statement-breakpoint
+CREATE TYPE "public"."availability_day_of_week" AS ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday');--> statement-breakpoint
 CREATE TYPE "public"."user_role" AS ENUM('admin', 'receptionist', 'doctor');--> statement-breakpoint
 CREATE TABLE "appointments" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -13,20 +14,29 @@ CREATE TABLE "appointments" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "doctor_availabilities" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"doctor_id" integer NOT NULL,
+	"day_of_week" "availability_day_of_week" NOT NULL,
+	"start_time" varchar(5) NOT NULL,
+	"end_time" varchar(5) NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "doctors" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"name" varchar(255) NOT NULL,
+	"email" varchar(255) NOT NULL,
 	"speciality_id" integer NOT NULL,
 	"license" varchar(50) NOT NULL,
 	"phone" varchar(20),
 	"bio" text,
-	"available_days_of_week" varchar(255),
-	"start_time" varchar(5),
-	"end_time" varchar(5),
 	"consultation_fee" integer,
 	"is_active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "doctors_email_unique" UNIQUE("email"),
 	CONSTRAINT "doctors_license_unique" UNIQUE("license")
 );
 --> statement-breakpoint
@@ -37,13 +47,8 @@ CREATE TABLE "patients" (
 	"date_of_birth" timestamp NOT NULL,
 	"gender" varchar(10),
 	"phone" varchar(20),
-	"address" text,
-	"city" varchar(100),
-	"state" varchar(2),
-	"zip_code" varchar(10),
 	"emergency_contact" varchar(255),
 	"emergency_phone" varchar(20),
-	"medical_history" text,
 	"is_active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -76,6 +81,6 @@ CREATE TABLE "users" (
 ALTER TABLE "appointments" ADD CONSTRAINT "appointments_doctor_id_doctors_id_fk" FOREIGN KEY ("doctor_id") REFERENCES "public"."doctors"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "appointments" ADD CONSTRAINT "appointments_patient_id_patients_id_fk" FOREIGN KEY ("patient_id") REFERENCES "public"."patients"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "appointments" ADD CONSTRAINT "appointments_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "doctors" ADD CONSTRAINT "doctors_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "doctor_availabilities" ADD CONSTRAINT "doctor_availabilities_doctor_id_doctors_id_fk" FOREIGN KEY ("doctor_id") REFERENCES "public"."doctors"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "doctors" ADD CONSTRAINT "doctors_speciality_id_specialities_id_fk" FOREIGN KEY ("speciality_id") REFERENCES "public"."specialities"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "patients" ADD CONSTRAINT "patients_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;

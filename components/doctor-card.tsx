@@ -7,6 +7,7 @@ interface DoctorCardProps {
   schedule: string;
   hours: string;
   price: string;
+  onViewDetails?: () => void;
 }
 
 export function DoctorCard({
@@ -15,6 +16,7 @@ export function DoctorCard({
   schedule,
   hours,
   price,
+  onViewDetails,
 }: DoctorCardProps) {
   return (
     <div className="w-full max-w-sm mx-auto bg-white rounded-xl p-4">
@@ -25,8 +27,8 @@ export function DoctorCard({
 
         {/* Info médico */}
         <div className="flex-1 flex flex-col justify-center">
-          <h3 className="text-sm font-semibold text-text-dark mb-1">{name}</h3>
-          <p className="text-xs text-gray-400 flex items-center gap-1">
+          <h3 className="text-md font-semibold text-text-dark mb-1">{name}</h3>
+          <p className="text-sm text-gray-400 flex items-center gap-1">
             <span className="text-blue-500"></span> {specialty}
           </p>
         </div>
@@ -37,24 +39,27 @@ export function DoctorCard({
         {/* Agenda */}
         <div className="flex items-center gap-3">
           <Calendar className="w-4 h-4 text-text-dark" />
-          <span className="text-xs text-text-dark">{schedule}</span>
+          <span className="text-sm text-text-dark">{schedule}</span>
         </div>
 
         {/* Horário */}
         <div className="flex items-center gap-3">
           <Clock className="w-4 h-4 text-text-dark" />
-          <span className="text-xs text-text-dark">{hours}</span>
+          <span className="text-sm text-text-dark">{hours}</span>
         </div>
 
         {/* Preço */}
         <div className="flex items-center gap-3">
           <DollarSign className="w-4 h-4 text-text-dark" />
-          <span className="text-xs text-text-dark">R${price}</span>
+          <span className="text-sm text-text-dark">R${price}</span>
         </div>
       </div>
 
       {/* Botão */}
-      <Button className="w-full bg-button-primary hover:bg-button-primary/90 text-white font-semibold py-6 rounded-lg text-sm">
+      <Button
+        className="w-full bg-button-primary hover:bg-button-primary/90 text-white font-semibold py-4 rounded-lg text-sm"
+        onClick={onViewDetails}
+      >
         Ver detalhes
       </Button>
     </div>

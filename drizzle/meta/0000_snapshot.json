@@ -1,6 +1,6 @@
 {
-  "id": "67156d93-e5ef-4307-8af4-c2f9909ef2d8",
-  "prevId": "55f9c372-3480-4da2-92c3-e0ec8dad1dc9",
+  "id": "1d9cd7b8-b9b0-40e5-acee-11f5cb37b131",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -121,6 +121,78 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.doctor_availabilities": {
+      "name": "doctor_availabilities",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "doctor_id": {
+          "name": "doctor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "day_of_week": {
+          "name": "day_of_week",
+          "type": "availability_day_of_week",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_time": {
+          "name": "start_time",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_time": {
+          "name": "end_time",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "doctor_availabilities_doctor_id_doctors_id_fk": {
+          "name": "doctor_availabilities_doctor_id_doctors_id_fk",
+          "tableFrom": "doctor_availabilities",
+          "tableTo": "doctors",
+          "columnsFrom": [
+            "doctor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.doctors": {
       "name": "doctors",
       "schema": "",
@@ -131,9 +203,15 @@
           "primaryKey": true,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -158,24 +236,6 @@
         "bio": {
           "name": "bio",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "available_days_of_week": {
-          "name": "available_days_of_week",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_time": {
-          "name": "start_time",
-          "type": "varchar(5)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "end_time": {
-          "name": "end_time",
-          "type": "varchar(5)",
           "primaryKey": false,
           "notNull": false
         },
@@ -209,19 +269,6 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "doctors_user_id_users_id_fk": {
-          "name": "doctors_user_id_users_id_fk",
-          "tableFrom": "doctors",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "doctors_speciality_id_specialities_id_fk": {
           "name": "doctors_speciality_id_specialities_id_fk",
           "tableFrom": "doctors",
@@ -238,6 +285,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "doctors_email_unique": {
+          "name": "doctors_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        },
         "doctors_license_unique": {
           "name": "doctors_license_unique",
           "nullsNotDistinct": false,
@@ -502,6 +556,19 @@
         "completed",
         "cancelled",
         "no-show"
+      ]
+    },
+    "public.availability_day_of_week": {
+      "name": "availability_day_of_week",
+      "schema": "public",
+      "values": [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
       ]
     },
     "public.user_role": {

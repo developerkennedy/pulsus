@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
-import { Roboto } from 'next/font/google';
+import { Manrope } from 'next/font/google';
 import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
-const roboto = Roboto({
-  variable: '--font-roboto',
+const manrope = Manrope({
+  variable: '--font-manrope',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
 });
 
 export const metadata: Metadata = {
@@ -21,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${roboto.variable} h-full antialiased`}>
-      <body className="min-h-full antialiased font-roboto">
+    <html lang="pt-BR" className={`${manrope.variable} h-full antialiased`}>
+      <body className="min-h-full antialiased font-sans">
         <SidebarProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </SidebarProvider>
