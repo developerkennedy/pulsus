@@ -24,7 +24,7 @@ const highlights = [
   {
     icon: ShieldCheck,
     title: 'Acesso seguro',
-    description: 'Sessões protegidas e base pronta para escalar por clínica.',
+    description: 'Sessões protegidas e base pronta para escalar sua clínica.',
   },
 ];
 
@@ -35,11 +35,11 @@ export function AuthShell({
   footer,
 }: AuthShellProps) {
   return (
-    <div className="grid min-h-svh bg-slate-50 lg:grid-cols-[1.1fr_0.9fr]">
-      <section className="relative hidden overflow-hidden border-r bg-linear-to-br from-blue-700 via-blue-600 to-cyan-500 px-10 py-12 text-white lg:flex">
+    <div className="grid bg-slate-50 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="relative hidden overflow-hidden border-r bg-linear-to-br from-blue-700 via-blue-600 to-cyan-500 px-10 py-8 text-white lg:flex">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.16),transparent_26%)]" />
         <div className="relative flex w-full flex-col justify-between">
-          <div className="space-y-8">
+          <div className="space-y-6">
             <Link href="/" className="inline-flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/18 backdrop-blur-sm">
                 <Stethoscope className="h-5 w-5" />
@@ -56,14 +56,11 @@ export function AuthShell({
               <p className="text-sm font-medium uppercase tracking-[0.24em] text-blue-100/80">
                 Plataforma SaaS
               </p>
-              <h1 className="text-2xl leading-tight font-semibold">
+              <h1 className="text-2xl leading-tight font-semibold mb-4">
                 Atendimento, agenda e operação clínica com a mesma linguagem do
                 seu time.
               </h1>
-              <p className="max-w-lg text-base text-blue-50/85 mb-4">
-                A autenticação entra agora para preparar o produto para
-                agendamentos, equipes internas e crescimento por clínica.
-              </p>
+              
             </div>
           </div>
 
@@ -86,9 +83,9 @@ export function AuthShell({
         </div>
       </section>
 
-      <section className="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10 xl:px-14">
+      <section className="flex items-center justify-center px-4 py-4 sm:px-6 lg:px-10 xl:px-14">
         <div className="mx-auto w-full space-y-6">
-          <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm sm:p-8">
             <div className="mb-8 space-y-2">
               <p className="text-sm font-medium text-blue-600">Pulsus</p>
               <h2 className="text-3xl font-semibold text-slate-950">{title}</h2>

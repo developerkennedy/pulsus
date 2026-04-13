@@ -48,7 +48,7 @@ export function SignInForm() {
   }
 
   return (
-    <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
       <AuthFormField
         label="E-mail"
         htmlFor="email"
