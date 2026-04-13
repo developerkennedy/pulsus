@@ -1,5 +1,15 @@
-import { db, dbClient } from '../lib/db/index.ts';
-import { specialities } from '../lib/db/schema.ts';
+import 'dotenv/config';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { specialities } from '../lib/db/schema';
+import * as schema from '../lib/db/schema';
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('Variável de ambiente DATABASE_URL não definida.');
+}
+
+const dbClient = postgres(process.env.DATABASE_URL);
+const db = drizzle(dbClient, { schema });
 
 const specialitiesSeed = [
   {

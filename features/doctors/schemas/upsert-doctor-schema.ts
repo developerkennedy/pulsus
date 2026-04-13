@@ -25,13 +25,12 @@ const optionalTextField = z
   .or(z.literal(''))
   .transform((value) => value || null);
 
-const optionalPositiveNumberFromForm = z.preprocess((value) => {
-  if (value === '' || value == null) {
-    return undefined;
-  }
-
-  return value;
-}, z.coerce.number().int().positive().optional());
+const optionalUuidFromForm = z
+  .string()
+  .uuid()
+  .optional()
+  .or(z.literal(''))
+  .transform((value) => value || undefined);
 
 export const upsertDoctorAvailabilitySchema = z.object({
   dayOfWeek: doctorAvailabilityDayOfWeekSchema,
@@ -41,7 +40,7 @@ export const upsertDoctorAvailabilitySchema = z.object({
 
 export const upsertDoctorSchema = z
   .object({
-    id: z.number().int().positive().optional(),
+    id: z.string().uuid().optional(),
     name: z
       .string()
       .trim()
@@ -52,10 +51,7 @@ export const upsertDoctorSchema = z
       .trim()
       .email('Informe um e-mail válido.')
       .max(255, 'O e-mail deve ter no máximo 255 caracteres.'),
-    specialityId: z
-      .number()
-      .int()
-      .positive('Selecione a especialidade do médico.'),
+    specialityId: z.string().uuid('Selecione a especialidade do médico.'),
     license: z
       .string()
       .trim()
@@ -108,7 +104,7 @@ const availabilityFormRowSchema = z.object({
 
 export const upsertDoctorFormSchema = z
   .object({
-    id: optionalPositiveNumberFromForm,
+    id: optionalUuidFromForm,
     name: z
       .string()
       .trim()
@@ -119,10 +115,10 @@ export const upsertDoctorFormSchema = z
       .trim()
       .email('Informe um e-mail válido.')
       .max(255, 'O e-mail deve ter no máximo 255 caracteres.'),
-    specialityId: z.coerce
-      .number()
-      .int()
-      .positive('Selecione a especialidade do médico.'),
+    specialityId: z
+      .string()
+      .min(1, 'Selecione a especialidade do médico.')
+      .uuid('Selecione a especialidade do médico.'),
     license: z
       .string()
       .trim()
@@ -223,7 +219,7 @@ export function getDoctorFormDefaultValues(
     id: initialData?.id,
     name: initialData?.name ?? '',
     email: initialData?.email ?? '',
-    specialityId: initialData?.specialityId ?? 0,
+    specialityId: initialData?.specialityId ?? '',
     license: initialData?.license ?? '',
     phone: initialData?.phone ?? '',
     bio: initialData?.bio ?? '',

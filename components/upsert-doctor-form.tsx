@@ -2,10 +2,24 @@
 
 import { useEffect, useState, useTransition, type ReactNode } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { toast } from 'sonner';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Input } from '@/components/ui/input';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { Select } from '@/components/ui/select';
 import {
   SheetClose,
@@ -16,6 +30,8 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
+import { deactivateDoctorAction } from '@/features/doctors/actions/deactivate-doctor';
+import { reactivateDoctorAction } from '@/features/doctors/actions/reactivate-doctor';
 import { cn } from '@/lib/utils';
 import { upsertDoctorAction } from '@/features/doctors/actions/upsert-doctor';
 import { getDoctorFormFieldError } from '@/features/doctors/lib/doctor-form-errors';
@@ -35,6 +51,7 @@ type UpsertDoctorFormProps = {
   initialData?: Partial<UpsertDoctorData>;
   specialities: DoctorSpecialityOption[];
   onSuccess?: () => void;
+  canEdit?: boolean;
 };
 
 function FormField({
@@ -69,8 +86,11 @@ export default function UpsertDoctorForm({
   initialData,
   specialities,
   onSuccess,
+  canEdit = true,
 }: UpsertDoctorFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [isDeactivating, startDeactivationTransition] = useTransition();
+  const [isReactivating, startReactivationTransition] = useTransition();
   const [formState, setFormState] = useState<UpsertDoctorFormState | null>(null);
 
   const form = useForm<
@@ -98,19 +118,69 @@ export default function UpsertDoctorForm({
       const payload = toUpsertDoctorPayload(values);
       const result = await upsertDoctorAction(payload);
 
-      setFormState(result);
-
       if (result.success) {
+        setFormState(null);
+        toast.success(result.message, { duration: 5000 });
+
         if (!initialData?.id) {
           form.reset(getDoctorFormDefaultValues());
         }
 
         onSuccess?.();
+        return;
       }
+
+      setFormState(result);
+      toast.error(result.message, { duration: 5000 });
+    });
+  }
+
+  function handleDeactivateDoctor() {
+    if (!initialData?.id) {
+      return;
+    }
+
+    setFormState(null);
+
+    startDeactivationTransition(async () => {
+      const result = await deactivateDoctorAction(initialData.id as string);
+
+      if (result.success) {
+        setFormState(null);
+        toast.success(result.message, { duration: 5000 });
+        onSuccess?.();
+        return;
+      }
+
+      setFormState(result);
+      toast.error(result.message, { duration: 5000 });
+    });
+  }
+
+  function handleReactivateDoctor() {
+    if (!initialData?.id) {
+      return;
+    }
+
+    setFormState(null);
+
+    startReactivationTransition(async () => {
+      const result = await reactivateDoctorAction(initialData.id as string);
+
+      if (result.success) {
+        setFormState(null);
+        toast.success(result.message, { duration: 5000 });
+        onSuccess?.();
+        return;
+      }
+
+      setFormState(result);
+      toast.error(result.message, { duration: 5000 });
     });
   }
 
   const title = initialData?.id ? 'Editar médico' : 'Novo médico';
+  const isActiveDoctor = initialData?.isActive ?? true;
   const description = initialData?.id
     ? 'Atualize os dados do médico e os dias disponíveis de atendimento.'
     : 'Preencha os dados do profissional e configure os dias e horários disponíveis.';
@@ -128,19 +198,6 @@ export default function UpsertDoctorForm({
       >
         <div className="grid flex-1 auto-rows-min gap-5 overflow-y-auto px-4 pb-4">
           <input type="hidden" {...form.register('id')} />
-
-          {formState?.message ? (
-            <div
-              className={cn(
-                'rounded-xl border px-4 py-3 text-sm',
-                formState.success
-                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                  : 'border-rose-200 bg-rose-50 text-rose-700',
-              )}
-            >
-              {formState.message}
-            </div>
-          ) : null}
 
           <FormField
             label="Nome"
@@ -226,11 +283,17 @@ export default function UpsertDoctorForm({
               'phone',
             )}
           >
-            <Input
-              id="phone"
-              type="text"
-              placeholder="(11) 99999-9999"
-              {...form.register('phone')}
+            <Controller
+              name="phone"
+              control={form.control}
+              render={({ field }) => (
+                <PhoneInput
+                  id="phone"
+                  value={field.value ?? ''}
+                  onValueChange={({ value }) => field.onChange(value)}
+                  onBlur={field.onBlur}
+                />
+              )}
             />
           </FormField>
 
@@ -242,22 +305,33 @@ export default function UpsertDoctorForm({
               form.formState.errors.consultationFee?.message,
               'consultationFee',
             )}
-            hint="Valor inteiro em centavos. Ex.: `25000`."
+            hint="Informe o valor em real. Ex.: `R$ 250,00`."
           >
-            <Input
-              id="consultationFee"
-              type="number"
-              min={0}
-              placeholder="25000"
-              {...form.register('consultationFee', {
-                setValueAs: (value) => {
-                  if (value === '' || value == null) {
-                    return null;
-                  }
+            <Controller
+              control={form.control}
+              name="consultationFee"
+              render={({ field }) => {
+                const feeValue =
+                  typeof field.value === 'number' ? field.value : null;
 
-                  return Number(value);
-                },
-              })}
+                return (
+                  <CurrencyInput
+                    id="consultationFee"
+                    name={field.name}
+                    placeholder="R$ 0,00"
+                    value={feeValue == null ? '' : feeValue / 100}
+                    onBlur={field.onBlur}
+                    getInputRef={field.ref}
+                    onValueChange={({ floatValue }) => {
+                      field.onChange(
+                        floatValue == null
+                          ? null
+                          : Math.round(floatValue * 100),
+                      );
+                    }}
+                  />
+                );
+              }}
             />
           </FormField>
 
@@ -399,22 +473,83 @@ export default function UpsertDoctorForm({
         </div>
 
         <SheetFooter className="border-t bg-white">
-          <Button
-            type="submit"
-            className="w-full sm:w-auto"
-            disabled={isPending || form.formState.isSubmitting}
-          >
-            {isPending
-              ? 'Salvando...'
-              : initialData?.id
-                ? 'Atualizar médico'
-                : 'Salvar médico'}
-          </Button>
+          {canEdit && initialData?.id ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant={isActiveDoctor ? 'destructive' : 'default'}
+                  className="w-full"
+                  disabled={isPending || isDeactivating || isReactivating}
+                >
+                  {isActiveDoctor ? 'Desativar médico' : 'Reativar médico'}
+                </Button>
+              </AlertDialogTrigger>
+
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {isActiveDoctor ? 'Desativar médico?' : 'Reativar médico?'}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {isActiveDoctor
+                      ? 'O médico deixará de aparecer na listagem padrão e não poderá receber novos agendamentos, mas seu histórico ficará preservado.'
+                      : 'O médico voltará a aparecer na listagem padrão e poderá receber novos agendamentos novamente.'}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    disabled={isDeactivating || isReactivating}
+                  >
+                    Cancelar
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    variant={isActiveDoctor ? 'destructive' : 'default'}
+                    onClick={
+                      isActiveDoctor
+                        ? handleDeactivateDoctor
+                        : handleReactivateDoctor
+                    }
+                    disabled={isDeactivating || isReactivating}
+                  >
+                    {isActiveDoctor
+                      ? isDeactivating
+                        ? 'Desativando...'
+                        : 'Confirmar desativação'
+                      : isReactivating
+                        ? 'Reativando...'
+                        : 'Confirmar reativação'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : null}
+
+          {canEdit ? (
+            <Button
+              type="submit"
+              className="w-full sm:w-auto"
+              disabled={
+                isPending ||
+                isDeactivating ||
+                isReactivating ||
+                form.formState.isSubmitting
+              }
+            >
+              {isPending
+                ? 'Salvando...'
+                : initialData?.id
+                  ? 'Atualizar médico'
+                  : 'Salvar médico'}
+            </Button>
+          ) : null}
           <SheetClose asChild>
             <Button
               type="button"
               variant="outline"
               className="w-full sm:w-auto"
+              disabled={isPending || isDeactivating || isReactivating}
             >
               Cancelar
             </Button>

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -r \"TODO\\\\|FIXME\\\\|BUG\\\\|HACK\\\\|WARN\\\\|XXX\" /c/Users/kenne/Documents/Playground/dr-agenda --include=\"*.ts\" --include=\"*.tsx\" ! -path \"*/node_modules/*\")",
+      "Bash(xargs wc:*)",
+      "Bash(grep:*)"
+    ]
+  }
+}

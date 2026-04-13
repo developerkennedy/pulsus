@@ -1,8 +1,10 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
+import { getRequiredClinicId } from '@/features/auth/lib/get-required-clinic-id';
+import { requirePermission } from '@/features/auth/lib/require-permission';
 import { db } from '@/lib/db';
 import { doctorAvailabilities, doctors } from '@/lib/db/schema';
 import {
@@ -14,6 +16,21 @@ import {
 export async function upsertDoctorAction(
   input: UpsertDoctorData,
 ): Promise<UpsertDoctorFormState> {
+  let clinicId: string;
+
+  try {
+    clinicId = await getRequiredClinicId();
+    await requirePermission('doctor.manage');
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível identificar a clínica do usuário logado.',
+    };
+  }
+
   const parsedData = upsertDoctorSchema.safeParse(input);
 
   if (!parsedData.success) {
@@ -30,24 +47,11 @@ export async function upsertDoctorAction(
 
   try {
     await db.transaction(async (tx) => {
-      const [savedDoctor] = data.id
-        ? await tx
-            .insert(doctors)
-            .values({
-              id: data.id,
-              name: data.name,
-              email: data.email,
-              specialityId: data.specialityId,
-              license: data.license,
-              phone: data.phone,
-              bio: data.bio,
-              consultationFee: data.consultationFee,
-              isActive: data.isActive,
-              updatedAt: new Date(),
-            })
-            .onConflictDoUpdate({
-              target: doctors.id,
-              set: {
+      const savedDoctor = data.id
+        ? (
+            await tx
+              .update(doctors)
+              .set({
                 name: data.name,
                 email: data.email,
                 specialityId: data.specialityId,
@@ -57,26 +61,34 @@ export async function upsertDoctorAction(
                 consultationFee: data.consultationFee,
                 isActive: data.isActive,
                 updatedAt: new Date(),
-              },
-            })
-            .returning({
-              id: doctors.id,
-            })
-        : await tx
-            .insert(doctors)
-            .values({
-              name: data.name,
-              email: data.email,
-              specialityId: data.specialityId,
-              license: data.license,
-              phone: data.phone,
-              bio: data.bio,
-              consultationFee: data.consultationFee,
-              isActive: data.isActive,
-            })
-            .returning({
-              id: doctors.id,
-            });
+              })
+              .where(and(eq(doctors.id, data.id), eq(doctors.clinicId, clinicId)))
+              .returning({
+                id: doctors.id,
+              })
+          )[0]
+        : (
+            await tx
+              .insert(doctors)
+              .values({
+                clinicId,
+                name: data.name,
+                email: data.email,
+                specialityId: data.specialityId,
+                license: data.license,
+                phone: data.phone,
+                bio: data.bio,
+                consultationFee: data.consultationFee,
+                isActive: data.isActive,
+              })
+              .returning({
+                id: doctors.id,
+              })
+          )[0];
+
+      if (!savedDoctor) {
+        throw new Error('DOCTOR_NOT_FOUND_FOR_CLINIC');
+      }
 
       await tx
         .delete(doctorAvailabilities)
@@ -101,12 +113,38 @@ export async function upsertDoctorAction(
         : 'Médico criado com sucesso.',
     };
   } catch (error) {
-    const databaseError = error as { code?: string; constraint_name?: string };
+    const databaseError = error as {
+      code?: string;
+      constraint_name?: string;
+      constraint?: string;
+    };
+    const violatedConstraint =
+      databaseError.constraint_name ?? databaseError.constraint;
 
     if (databaseError.code === '23505') {
+      if (violatedConstraint === 'doctors_clinic_email_unique') {
+        return {
+          success: false,
+          message: 'Já existe um médico com este e-mail nesta clínica.',
+          fieldErrors: {
+            email: ['Informe um e-mail diferente para este médico.'],
+          },
+        };
+      }
+
+      if (violatedConstraint === 'doctors_clinic_license_unique') {
+        return {
+          success: false,
+          message: 'Já existe um médico com este registro nesta clínica.',
+          fieldErrors: {
+            license: ['Informe um registro profissional diferente.'],
+          },
+        };
+      }
+
       return {
         success: false,
-        message: 'Já existe um médico com este e-mail ou registro.',
+        message: 'Já existe um médico com este e-mail ou registro nesta clínica.',
       };
     }
 
@@ -114,6 +152,13 @@ export async function upsertDoctorAction(
       return {
         success: false,
         message: 'A especialidade selecionada não foi encontrada.',
+      };
+    }
+
+    if (error instanceof Error && error.message === 'DOCTOR_NOT_FOUND_FOR_CLINIC') {
+      return {
+        success: false,
+        message: 'Médico não encontrado para a clínica atual.',
       };
     }
 

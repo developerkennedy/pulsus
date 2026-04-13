@@ -4,10 +4,10 @@ import {
 } from '@/features/doctors/schemas/upsert-doctor-schema';
 
 export type DoctorListItem = {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  specialityId: number;
+  specialityId: string;
   license: string;
   phone: string;
   specialty: string;
@@ -16,11 +16,11 @@ export type DoctorListItem = {
   consultationFee: number;
   bio?: string;
   availabilities: UpsertDoctorData['availabilities'];
-  isActive?: boolean;
+  isActive: boolean;
 };
 
 export type DoctorSpecialityOption = {
-  id: number;
+  id: string;
   name: string;
 };
 

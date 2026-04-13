@@ -1,0 +1,1 @@
+CREATE INDEX "doctor_availabilities_doctor_day_idx" ON "doctor_availabilities" USING btree ("doctor_id","day_of_week");
