@@ -8,7 +8,7 @@ function isPublicRoute(pathname: string) {
   return publicRoutes.some((route) => pathname.startsWith(route));
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasSession = request.cookies.has(SESSION_COOKIE);
 
