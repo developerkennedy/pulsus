@@ -4,7 +4,7 @@ import { AuthShell } from '@/features/auth/components/auth-shell';
 import { SignInForm } from '@/features/auth/components/sign-in-form';
 
 export const metadata: Metadata = {
-  title: 'Entrar | dr.agenda',
+  title: 'Entrar | Pulsus',
 };
 
 export default function SignInPage() {
@@ -14,7 +14,7 @@ export default function SignInPage() {
       description="Acesse o painel administrativo da clínica para continuar com cadastros, agenda e operação diária."
       footer={
         <span>
-          Ambiente de autenticação do <strong>Dr.Agenda</strong>
+          Ambiente de autenticação do <strong>Pulsus</strong>
         </span>
       }
     >

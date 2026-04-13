@@ -16,7 +16,7 @@ const db = drizzle(dbClient, { schema });
 const doctorsSeed = [
   {
     name: 'Dr. Rafael Mendes',
-    email: 'rafael.mendes@dragenda.test',
+    email: 'rafael.mendes@pulsus.test',
     license: 'CRM-SP 123456',
     phone: '11991110001',
     consultationFee: 25000, // R$ 250,00
@@ -30,7 +30,7 @@ const doctorsSeed = [
   },
   {
     name: 'Dra. Camila Ferreira',
-    email: 'camila.ferreira@dragenda.test',
+    email: 'camila.ferreira@pulsus.test',
     license: 'CRM-RJ 654321',
     phone: '21992220002',
     consultationFee: 20000, // R$ 200,00
@@ -44,7 +44,7 @@ const doctorsSeed = [
   },
   {
     name: 'Dr. Bruno Alves',
-    email: 'bruno.alves@dragenda.test',
+    email: 'bruno.alves@pulsus.test',
     license: 'CRM-MG 789012',
     phone: '31993330003',
     consultationFee: 30000, // R$ 300,00
@@ -58,7 +58,7 @@ const doctorsSeed = [
   },
   {
     name: 'Dra. Ana Paula Souza',
-    email: 'anapaula.souza@dragenda.test',
+    email: 'anapaula.souza@pulsus.test',
     license: 'CRM-BA 345678',
     phone: '71994440004',
     consultationFee: 22000, // R$ 220,00
@@ -72,7 +72,7 @@ const doctorsSeed = [
   },
   {
     name: 'Dr. Lucas Teixeira',
-    email: 'lucas.teixeira@dragenda.test',
+    email: 'lucas.teixeira@pulsus.test',
     license: 'CRM-PR 901234',
     phone: '41995550005',
     consultationFee: 28000, // R$ 280,00

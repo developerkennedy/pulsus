@@ -13,7 +13,7 @@ if (!process.env.BETTER_AUTH_SECRET) {
 
 if (
   process.env.NODE_ENV === 'production' &&
-  process.env.BETTER_AUTH_SECRET === 'dr-agenda-dev-secret-change-me'
+  process.env.BETTER_AUTH_SECRET === 'pulsus-dev-secret-change-me'
 ) {
   throw new Error(
     'BETTER_AUTH_SECRET está com o valor padrão de desenvolvimento. Defina um segredo seguro em produção.',

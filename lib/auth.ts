@@ -62,7 +62,7 @@ const restrictedRole = adminAccessControl.newRole({
 });
 
 export const auth = betterAuth({
-  appName: 'dr.agenda',
+  appName: 'pulsus',
   baseURL: authBaseUrl,
   secret: authSecret,
   database: drizzleAdapter(db, {
@@ -104,7 +104,7 @@ export const auth = betterAuth({
     database: {
       generateId: () => crypto.randomUUID(),
     },
-    cookiePrefix: 'dr-agenda',
+    cookiePrefix: 'pulsus',
     useSecureCookies: process.env.NODE_ENV === 'production',
   },
   plugins: [

@@ -1,4 +1,4 @@
-# dr-agenda
+# Pulsus
 
 Sistema SaaS multi-tenant de gerenciamento de clínicas médicas. Permite que clínicas gerenciem médicos, pacientes e agendamentos com controle de acesso baseado em papéis.
 

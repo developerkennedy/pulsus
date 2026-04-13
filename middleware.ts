@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
-const SESSION_COOKIE = 'dr-agenda.session_token';
+const SESSION_COOKIE = 'pulsus.session_token';
 
 const publicRoutes = ['/sign-in', '/sign-up', '/api/auth'];
 

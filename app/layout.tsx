@@ -11,7 +11,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: 'dr.agenda - Gestão de Clínica',
+  title: 'Pulsus - Gestão de Clínica',
   description: 'Sistema de agenda médica e gestão de clínicas',
 };
 

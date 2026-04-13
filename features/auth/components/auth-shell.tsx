@@ -45,7 +45,7 @@ export function AuthShell({
                 <Stethoscope className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-2xl font-semibold">Dr.agenda</p>
+                <p className="text-2xl font-semibold">Pulsus</p>
                 <p className="text-sm text-blue-100/90">
                   Gestão médica para clínicas em crescimento
                 </p>
@@ -90,7 +90,7 @@ export function AuthShell({
         <div className="mx-auto w-full space-y-6">
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
             <div className="mb-8 space-y-2">
-              <p className="text-sm font-medium text-blue-600">Dr.Agenda</p>
+              <p className="text-sm font-medium text-blue-600">Pulsus</p>
               <h2 className="text-3xl font-semibold text-slate-950">{title}</h2>
               <p className="text-sm leading-6 text-slate-500">{description}</p>
             </div>
