@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'node:url';
 
-import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
 const projectRoot = fileURLToPath(new URL('.', import.meta.url));
@@ -22,7 +21,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.ingest.sentry.io",
+      "connect-src 'self'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -44,7 +43,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  silent: true,
-  disableLogger: true,
-});
+export default nextConfig;

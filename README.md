@@ -21,7 +21,6 @@
 | UI | Tailwind CSS v4 + Shadcn UI + Lucide React |
 | Formulários | React Hook Form + Zod |
 | Tabelas | TanStack Table |
-| Monitoramento | Sentry |
 | Notificações | Sonner |
 
 ---
@@ -59,12 +58,6 @@ Para gerar um secret seguro:
 
 ```bash
 openssl rand -base64 32
-```
-
-Opcional (monitoramento):
-
-```env
-NEXT_PUBLIC_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
 ```
 
 ### Instalação
@@ -112,7 +105,7 @@ lib/
 ├── auth.ts              # Configuração Better Auth
 ├── crypto.ts            # Criptografia AES-256-GCM + HMAC
 ├── db/                  # Drizzle ORM (schema, conexão)
-├── logger.ts            # Logger estruturado + Sentry
+├── logger.ts            # Logger estruturado
 └── rate-limit.ts        # Rate limiter in-memory
 ```
 
@@ -134,7 +127,7 @@ lib/
 | Rate limiting | 10 req/min sign-in, 5 req/min sign-up por IP |
 | Headers | CSP, HSTS, X-Frame-Options, X-Content-Type-Options |
 | PII | CPF criptografado com AES-256-GCM, deduplicação via HMAC-SHA256 |
-| Monitoramento | Sentry (client, server, edge) com logger estruturado |
+| Monitoramento | Logger estruturado (JSON em produção, legível em dev) |
 
 ---
 
